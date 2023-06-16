@@ -85,7 +85,14 @@ function App() {
     const leaderboardRef = ref(database, 'users');
     const unsubscribeLeaderboard = onValue(leaderboardRef, handleLeaderboardData);
 
+    // Log the user every 5 seconds
+    const interval = setInterval(() => {
+      const user = auth.currentUser;
+      console.log('Current user:', user);
+    }, 5000);
+
     return () => {
+      clearInterval(interval);
       unsubscribeAuth();
       unsubscribeLeaderboard();
       handleDisconnect();
