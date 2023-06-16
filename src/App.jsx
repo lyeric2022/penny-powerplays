@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, onValue, onDisconnect, remove } from 'firebase/database';
@@ -28,16 +29,11 @@ function App() {
   const [nameInput, setNameInput] = useState('');
   const [contributionInput, setContributionInput] = useState('');
 
-
   useEffect(() => {
-    // Check if the user is signed in anonymously
-    onAuthStateChanged(auth, (user) => {
-      setIsSignedIn(user);
-
-      console.log(user);
+    const handleAuthStateChanged = (user) => {
+      console.log('Auth state changed:', user);
 
       if (user) {
-        // Add user reference to the Realtime Database
         const userRef = ref(database, `users/${user.uid}`);
         set(userRef, {
           anonymous: true,
@@ -52,15 +48,12 @@ function App() {
           .catch((error) => {
             console.log('Error adding user reference:', error);
           });
+      } else {
+        console.log("User failed to sign in anonymously.");
       }
-      else {
-        console.log("User failed at signing in anonymously.");
-      }
-    });
+    };
 
-    // Fetch the leaderboard data from the database
-    const leaderboardRef = ref(database, 'users');
-    onValue(leaderboardRef, (snapshot) => {
+    const handleLeaderboardData = (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const leaderboardData = Object.entries(data).map(([userId, userData]) => ({
@@ -72,22 +65,32 @@ function App() {
         }));
         setLeaderboard(leaderboardData);
       }
-    });
+    };
 
-    // Remove user reference from the Realtime Database on disconnect
-    const user = auth.currentUser;
-    if (user) {
-      const userRef = ref(database, `users/${user.uid}`);
-      onDisconnect(userRef).remove()
-        .then(() => {
-          console.log('User reference removed on disconnect');
-        })
-        .catch((error) => {
-          console.log('Error removing user reference on disconnect:', error);
-        });
-    }
+    const handleDisconnect = () => {
+      const user = auth.currentUser;
+      if (user) {
+        const userRef = ref(database, `users/${user.uid}`);
+        onDisconnect(userRef).remove()
+          .then(() => {
+            console.log('User reference removed on disconnect');
+          })
+          .catch((error) => {
+            console.log('Error removing user reference on disconnect:', error);
+          });
+      }
+    };
 
-  }, [isSignedIn, auth, database]);
+    const unsubscribeAuth = onAuthStateChanged(auth, handleAuthStateChanged);
+    const leaderboardRef = ref(database, 'users');
+    const unsubscribeLeaderboard = onValue(leaderboardRef, handleLeaderboardData);
+
+    return () => {
+      unsubscribeAuth();
+      unsubscribeLeaderboard();
+      handleDisconnect();
+    };
+  }, [auth, database]);
 
   const handleNameChange = () => {
     if (nameInput.trim() !== '') {
@@ -147,7 +150,6 @@ function App() {
         <input
           type="number"
           min="0"
-
           value={contributionInput}
           onChange={(e) => setContributionInput(e.target.value)}
           placeholder="Enter your contributions"
