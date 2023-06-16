@@ -51,6 +51,9 @@ function App() {
             console.log('Error adding user reference:', error);
           });
       }
+      else {
+        console.log("User failed at signing in anonymously.");
+      }
     });
 
     // Fetch the leaderboard data from the database
