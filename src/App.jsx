@@ -23,6 +23,7 @@ const database = getDatabase(firebaseApp);
 const auth = getAuth(firebaseApp);
 
 function App() {
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
   const [nameInput, setNameInput] = useState('');
   const [contributionInput, setContributionInput] = useState('');
@@ -31,23 +32,30 @@ function App() {
   useEffect(() => {
     // Check if the user is signed in anonymously
     onAuthStateChanged(auth, (user) => {
+      setIsSignedIn(user);
 
-      // Add user reference to the Realtime Database
-      const userRef = ref(database, `users/${user.uid}`);
-      set(userRef, {
-        anonymous: true,
-        name: createName(),
-        money: 10000,
-        hasContributed: "Unready",
-        isAlive: "Alive",
-      })
-        .then(() => {
-          console.log('User reference added to the database');
+      console.log(user);
+
+      if (user) {
+        // Add user reference to the Realtime Database
+        const userRef = ref(database, `users/${user.uid}`);
+        set(userRef, {
+          anonymous: true,
+          name: createName(),
+          money: 10000,
+          hasContributed: "Unready",
+          isAlive: "Alive",
         })
-        .catch((error) => {
-          console.log('Error adding user reference:', error);
-        });
-
+          .then(() => {
+            console.log('User reference added to the database');
+          })
+          .catch((error) => {
+            console.log('Error adding user reference:', error);
+          });
+      }
+      else {
+        console.log("User failed at signing in anonymously.");
+      }
     });
 
     // Fetch the leaderboard data from the database
@@ -79,7 +87,7 @@ function App() {
         });
     }
 
-  }, [auth, database]);
+  }, [isSignedIn, auth, database]);
 
   const handleNameChange = () => {
     if (nameInput.trim() !== '') {
