@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js'
-import { getDatabase, ref, set, onValue, onDisconnect, remove } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js'
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+import { initializeApp } from 'firebase/app';
+import { getDatabase, ref, set, onValue, onDisconnect, remove } from 'firebase/database';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebase/auth';
 
 import { createName } from './components/functions';
 
@@ -17,7 +16,6 @@ const firebaseConfig = {
   appId: "1:91939738441:web:8a1216a1430a1457690098",
   measurementId: "G-ZWS3GQ0JCE"
 };
-
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 const database = getDatabase(firebaseApp);
@@ -31,14 +29,14 @@ function App() {
   const [contributionInput, setContributionInput] = useState('');
 
   useEffect(() => {
-    
     const handleAuthStateChanged = (user) => {
       console.log('Auth state changed:', user);
 
       if (user) {
+        setIsSignedIn(true);
         const userRef = ref(database, `users/${user.uid}`);
         set(userRef, {
-          anonymous: true,
+          anonymous: false,
           name: createName(),
           money: 10000,
           hasContributed: "Unready",
@@ -51,7 +49,8 @@ function App() {
             console.log('Error adding user reference:', error);
           });
       } else {
-        console.log("User failed to sign in anonymously.");
+        setIsSignedIn(false);
+        console.log("User is not signed in.");
       }
     };
 
@@ -136,35 +135,54 @@ function App() {
     }
   };
 
+  const handleSignInWithGoogle = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        console.log('Successfully signed in with Google:', result.user);
+      })
+      .catch((error) => {
+        console.log('Error signing in with Google:', error);
+      });
+  };
+
   return (
     <div>
-      <h2>Leaderboard</h2>
-      <ul>
-        {leaderboard.map((player) => (
-          <p key={player.id}>
-            {player.name} | {player.isAlive} | ${player.money} | {player.hasContributed}
-          </p>
-        ))}
-      </ul>
-      <div>
-        <input
-          type="text"
-          value={nameInput}
-          onChange={(e) => setNameInput(e.target.value)}
-          placeholder="Enter your name"
-        />
-        <button onClick={handleNameChange}>Change Name</button>
-      </div>
-      <div>
-        <input
-          type="number"
-          min="0"
-          value={contributionInput}
-          onChange={(e) => setContributionInput(e.target.value)}
-          placeholder="Enter your contributions"
-        />
-        <button onClick={handleContributionChange}>Submit Contributions</button>
-      </div>
+      {isSignedIn ? (
+        <div>
+          <h2>Leaderboard</h2>
+          <ul>
+            {leaderboard.map((player) => (
+              <p key={player.id}>
+                {player.name} | {player.isAlive} | ${player.money} | {player.hasContributed}
+              </p>
+            ))}
+          </ul>
+          <div>
+            <input
+              type="text"
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              placeholder="Enter your name"
+            />
+            <button onClick={handleNameChange}>Change Name</button>
+          </div>
+          <div>
+            <input
+              type="number"
+              min="0"
+              value={contributionInput}
+              onChange={(e) => setContributionInput(e.target.value)}
+              placeholder="Enter your contributions"
+            />
+            <button onClick={handleContributionChange}>Submit Contributions</button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <h2>Please sign in with Google:</h2>
+          <button onClick={handleSignInWithGoogle}>Sign In with Google</button>
+        </div>
+      )}
     </div>
   );
 }
