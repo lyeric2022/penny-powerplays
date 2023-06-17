@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js'
 import { getDatabase, ref, set, onValue, onDisconnect, remove } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js'
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
 
 import { createName } from './components/functions';
 
@@ -22,6 +22,7 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const database = getDatabase(firebaseApp);
 const auth = getAuth(firebaseApp);
+const provider = new GoogleAuthProvider();
 
 function App() {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -30,6 +31,7 @@ function App() {
   const [contributionInput, setContributionInput] = useState('');
 
   useEffect(() => {
+    
     const handleAuthStateChanged = (user) => {
       console.log('Auth state changed:', user);
 
