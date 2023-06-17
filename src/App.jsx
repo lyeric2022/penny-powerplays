@@ -28,6 +28,8 @@ function App() {
   const [nameInput, setNameInput] = useState('');
   const [contributionInput, setContributionInput] = useState('');
 
+  const [passwordInput, setPasswordInput] = useState('');
+
   useEffect(() => {
     const handleAuthStateChanged = (user) => {
       console.log('Auth state changed:', user);
@@ -145,6 +147,22 @@ function App() {
       });
   };
 
+  const handleDeleteUsers = () => {
+    const password = 'iloveher'; // Set the correct password here
+    if (passwordInput === password) {
+      const userRef = ref(database, 'users');
+      remove(userRef)
+        .then(() => {
+          console.log('All users deleted from the database');
+        })
+        .catch((error) => {
+          console.log('Error deleting users:', error);
+        });
+    } else {
+      console.log('Incorrect password');
+    }
+  };
+
   return (
     <div>
       {isSignedIn ? (
@@ -176,7 +194,19 @@ function App() {
             />
             <button onClick={handleContributionChange}>Submit Contributions</button>
           </div>
+          <div>
+            <div>
+              <input
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                placeholder="Enter the password"
+              />
+              <button onClick={handleDeleteUsers}>Delete All Users</button>
+            </div>
+          </div>
         </div>
+
       ) : (
         <div>
           <h2>Please sign in with Google:</h2>
