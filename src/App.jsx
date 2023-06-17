@@ -16,6 +16,7 @@ const firebaseConfig = {
   appId: "1:91939738441:web:8a1216a1430a1457690098",
   measurementId: "G-ZWS3GQ0JCE"
 };
+
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 const database = getDatabase(firebaseApp);
@@ -31,10 +32,12 @@ function App() {
   const [passwordInput, setPasswordInput] = useState('');
 
   useEffect(() => {
+    // Function to handle authentication state changes
     const handleAuthStateChanged = (user) => {
       console.log('Auth state changed:', user);
 
       if (user) {
+        // If user is signed in
         setIsSignedIn(true);
         const userRef = ref(database, `users/${user.uid}`);
         set(userRef, {
@@ -51,11 +54,13 @@ function App() {
             console.log('Error adding user reference:', error);
           });
       } else {
+        // If user is signed out
         setIsSignedIn(false);
         console.log("User is not signed in.");
       }
     };
 
+    // Function to handle leaderboard data
     const handleLeaderboardData = (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -70,6 +75,7 @@ function App() {
       }
     };
 
+    // Function to remove user reference on disconnect
     const handleDisconnect = () => {
       const user = auth.currentUser;
       if (user) {
@@ -84,7 +90,9 @@ function App() {
       }
     };
 
+    // Subscribe to authentication state changes
     const unsubscribeAuth = onAuthStateChanged(auth, handleAuthStateChanged);
+    // Subscribe to leaderboard data changes
     const leaderboardRef = ref(database, 'users');
     const unsubscribeLeaderboard = onValue(leaderboardRef, handleLeaderboardData);
 
@@ -94,6 +102,7 @@ function App() {
       console.log('Current user:', user);
     }, 5000);
 
+    // Clean up functions
     return () => {
       clearInterval(interval);
       unsubscribeAuth();
@@ -102,6 +111,7 @@ function App() {
     };
   }, [auth, database]);
 
+  // Function to handle name change
   const handleNameChange = () => {
     if (nameInput.trim() !== '') {
       const user = auth.currentUser;
@@ -118,6 +128,7 @@ function App() {
     }
   };
 
+  // Function to handle contribution change
   const handleContributionChange = () => {
     if (contributionInput.trim() !== '') {
       const user = auth.currentUser;
@@ -137,6 +148,7 @@ function App() {
     }
   };
 
+  // Function to handle sign in with Google
   const handleSignInWithGoogle = () => {
     signInWithPopup(auth, provider)
       .then((result) => {
@@ -147,6 +159,7 @@ function App() {
       });
   };
 
+  // Function to handle deleting all users
   const handleDeleteUsers = () => {
     const password = 'iloveher'; // Set the correct password here
     if (passwordInput === password) {
@@ -166,6 +179,7 @@ function App() {
   return (
     <div>
       {isSignedIn ? (
+        // If user is signed in
         <div>
           <h2>Leaderboard</h2>
           <ul>
@@ -195,22 +209,21 @@ function App() {
             <button onClick={handleContributionChange}>Submit Contributions</button>
           </div>
           <div>
-            <div>
-              <input
-                type="password"
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                placeholder="Enter the password"
-              />
-              <button onClick={handleDeleteUsers}>Delete All Users</button>
-            </div>
+            <input
+              type="password"
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value)}
+              placeholder="Enter the password"
+            />
+            <button onClick={handleDeleteUsers}>Delete All Users</button>
           </div>
         </div>
-
       ) : (
+        // If user is signed out
         <div>
           <h2>Please sign in with Google:</h2>
           <button onClick={handleSignInWithGoogle}>Sign In with Google</button>
+          <p>btw im also accepting gf applications on a rolling basis. expiring soon!! </p>
         </div>
       )}
     </div>
