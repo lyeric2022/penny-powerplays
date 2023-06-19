@@ -23,17 +23,21 @@ const database = getDatabase(firebaseApp);
 const auth = getAuth(firebaseApp);
 const provider = new GoogleAuthProvider();
 
+let userIsReferenced = false;
+
 function App() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
-  const [nameInput, setNameInput] = useState('');
-  const [contributionInput, setContributionInput] = useState('');
 
+  const [nameInput, setNameInput] = useState(createName());
+  const [contributionInput, setContributionInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
 
   useEffect(() => {
+
     // Function to handle authentication state changes
     const handleAuthStateChanged = (user) => {
+
       console.log('Auth state changed:', user);
 
       if (user) {
@@ -41,11 +45,13 @@ function App() {
         setIsSignedIn(true);
         const userRef = ref(database, `users/${user.uid}`);
         set(userRef, {
-          anonymous: false,
-          name: createName(),
+          name: nameInput,
           money: 10000,
-          hasContributed: "Unready",
-          isAlive: "Alive",
+          status: "unready",
+          contributionAmount: 0,
+          lastContributionAmount: 0,
+          timesDied: 0,
+          isAlive: "alive",
         })
           .then(() => {
             console.log('User reference added to the database');
@@ -68,7 +74,10 @@ function App() {
           id: userId,
           name: userData.name,
           money: userData.money,
-          hasContributed: userData.hasContributed,
+          status: userData.status,
+          contributionAmount: userData.contributionAmount,
+          lastContributionAmount: userData.lastContributionAmount,
+          timesDied: userData.timesDied,
           isAlive: userData.isAlive,
         }));
         setLeaderboard(leaderboardData);
@@ -96,20 +105,51 @@ function App() {
     const leaderboardRef = ref(database, 'users');
     const unsubscribeLeaderboard = onValue(leaderboardRef, handleLeaderboardData);
 
-    // Log the user every 5 seconds
-    const interval = setInterval(() => {
-      const user = auth.currentUser;
-      console.log('Current user:', user);
-    }, 5000);
+    // // Log the user every 5 seconds
+    // const interval = setInterval(() => {
+    //   const user = auth.currentUser;
+    //   console.log('Current user:', user);
+    // }, 10000);
 
     // Clean up functions
     return () => {
-      clearInterval(interval);
+      // clearInterval(interval);
       unsubscribeAuth();
       unsubscribeLeaderboard();
       handleDisconnect();
     };
   }, [auth, database]);
+
+  // Function to handle start button click
+  const handleStartClick = () => {
+    const readyPlayers = leaderboard.filter((player) => player.status === 'ready');
+
+    if (readyPlayers.length === leaderboard.length) {
+      const sortedPlayers = [...leaderboard].sort((a, b) => a.contributionAmount - b.contributionAmount);
+      const lowestContributor = sortedPlayers[0];
+
+      const updatedLeaderboard = leaderboard.map((player) => ({
+        ...player,
+        money: player.money - player.contributionAmount,
+        status: 'unready',
+        lastContributionAmount: player.contributionAmount,
+        timesDied: player === lowestContributor ? player.timesDied + 1 : player.timesDied,
+      }));
+
+
+      const leaderboardRef = ref(database, 'users');
+      set(leaderboardRef, updatedLeaderboard)
+        .then(() => {
+          console.log('Contributions deducted and statuses reset');
+        })
+        .catch((error) => {
+          console.log('Error deducting contributions and resetting statuses:', error);
+        });
+    } else {
+      console.log('Not all players are ready.');
+    }
+  };
+
 
   // Function to handle name change
   const handleNameChange = () => {
@@ -117,7 +157,11 @@ function App() {
       const user = auth.currentUser;
       if (user) {
         const userRef = ref(database, `users/${user.uid}`);
-        set(userRef, { ...leaderboard.find((player) => player.id === user.uid), name: nameInput })
+        set(userRef, {
+          ...leaderboard.find((player) => player.id === user.uid), 
+          name: nameInput,
+          id: user.uid,
+        })
           .then(() => {
             console.log('User name updated in the database');
           })
@@ -136,7 +180,10 @@ function App() {
         const userRef = ref(database, `users/${user.uid}`);
         set(userRef, {
           ...leaderboard.find((player) => player.id === user.uid),
-          money: leaderboard.find((player) => player.id === user.uid).money - parseInt(contributionInput, 10),
+          status: "ready",
+          contributionAmount: contributionInput,
+          id: user.uid,
+          // money: leaderboard.find((player) => player.id === user.uid).money - parseInt(contributionInput, 10),
         })
           .then(() => {
             console.log('User money updated in the database');
@@ -174,6 +221,8 @@ function App() {
     } else {
       console.log('Incorrect password');
     }
+
+    window.location.reload(false);
   };
 
   return (
@@ -185,7 +234,7 @@ function App() {
           <ul>
             {leaderboard.map((player) => (
               <p key={player.id}>
-                {player.name} | {player.isAlive} | ${player.money} | {player.hasContributed}
+                {player.name} | times died: {player.timesDied} | contribution: {player.lastContributionAmount} | ${player.money} | {player.status}
               </p>
             ))}
           </ul>
@@ -208,6 +257,8 @@ function App() {
             />
             <button onClick={handleContributionChange}>Submit Contributions</button>
           </div>
+          <button onClick={handleStartClick}>Start</button>
+
           <div>
             <input
               type="password"
@@ -215,7 +266,7 @@ function App() {
               onChange={(e) => setPasswordInput(e.target.value)}
               placeholder="Enter the password"
             />
-            <button onClick={handleDeleteUsers}>Delete All Users</button>
+            <button onClick={handleDeleteUsers}>Restart Game</button>
           </div>
         </div>
       ) : (
