@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, set, onValue, onDisconnect, remove } from 'firebase/database';
+import { getDatabase, ref, set, onValue, onDisconnect, remove, update } from 'firebase/database';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebase/auth';
 
 import { createName } from './components/functions';
+
+import StoryTheme from './components/StoryTheme';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -44,13 +46,14 @@ function App() {
         // If user is signed in
         setIsSignedIn(true);
         const userRef = ref(database, `users/${user.uid}`);
+
         set(userRef, {
           name: nameInput,
           money: 10000,
           status: "unready",
           contributionAmount: 0,
           lastContributionAmount: 0,
-          timesDied: 0,
+          livesLeft: 2,
           isAlive: "alive",
         })
           .then(() => {
@@ -77,7 +80,7 @@ function App() {
           status: userData.status,
           contributionAmount: userData.contributionAmount,
           lastContributionAmount: userData.lastContributionAmount,
-          timesDied: userData.timesDied,
+          livesLeft: userData.livesLeft,
           isAlive: userData.isAlive,
         }));
         setLeaderboard(leaderboardData);
@@ -120,7 +123,6 @@ function App() {
     };
   }, [auth, database]);
 
-  // Function to handle start button click
   const handleStartClick = () => {
     const readyPlayers = leaderboard.filter((player) => player.status === 'ready');
 
@@ -128,17 +130,34 @@ function App() {
       const sortedPlayers = [...leaderboard].sort((a, b) => a.contributionAmount - b.contributionAmount);
       const lowestContributor = sortedPlayers[0];
 
-      const updatedLeaderboard = leaderboard.map((player) => ({
-        ...player,
-        money: player.money - player.contributionAmount,
-        status: 'unready',
-        lastContributionAmount: player.contributionAmount,
-        timesDied: player === lowestContributor ? player.timesDied + 1 : player.timesDied,
-      }));
+      const updates = {};
 
+      leaderboard.forEach((player) => {
+        const userRef = ref(database, `users/${player.id}`);
+        const updatedData = {
+          ...player,
+          money: player.money - player.contributionAmount,
+          status: 'unready',
+          lastContributionAmount: player.contributionAmount,
+          livesLeft: player === lowestContributor ? player.livesLeft - 1 : player.livesLeft,
+        };
+
+        if (updatedData.livesLeft > 0) {
+          updates[`/${player.id}`] = updatedData;
+        } else {
+          // Remove the player from the database and leaderboards
+          remove(userRef)
+            .then(() => {
+              console.log('Player removed:', player.name);
+            })
+            .catch((error) => {
+              console.log('Error removing player:', error);
+            });
+        }
+      });
 
       const leaderboardRef = ref(database, 'users');
-      set(leaderboardRef, updatedLeaderboard)
+      update(leaderboardRef, updates)
         .then(() => {
           console.log('Contributions deducted and statuses reset');
         })
@@ -151,17 +170,14 @@ function App() {
   };
 
 
+
   // Function to handle name change
   const handleNameChange = () => {
     if (nameInput.trim() !== '') {
       const user = auth.currentUser;
       if (user) {
         const userRef = ref(database, `users/${user.uid}`);
-        set(userRef, {
-          ...leaderboard.find((player) => player.id === user.uid), 
-          name: nameInput,
-          id: user.uid,
-        })
+        set(userRef, { ...leaderboard.find((player) => player.id === user.uid), name: nameInput })
           .then(() => {
             console.log('User name updated in the database');
           })
@@ -182,7 +198,6 @@ function App() {
           ...leaderboard.find((player) => player.id === user.uid),
           status: "ready",
           contributionAmount: contributionInput,
-          id: user.uid,
           // money: leaderboard.find((player) => player.id === user.uid).money - parseInt(contributionInput, 10),
         })
           .then(() => {
@@ -218,11 +233,12 @@ function App() {
         .catch((error) => {
           console.log('Error deleting users:', error);
         });
+
+      window.location.reload(false);
+
     } else {
       console.log('Incorrect password');
     }
-
-    window.location.reload(false);
   };
 
   return (
@@ -234,7 +250,7 @@ function App() {
           <ul>
             {leaderboard.map((player) => (
               <p key={player.id}>
-                {player.name} | times died: {player.timesDied} | contribution: {player.lastContributionAmount} | ${player.money} | {player.status}
+                {player.name} | Lives: {player.livesLeft} | Previous Contribution: ${player.lastContributionAmount} | ${player.money} | {player.status}
               </p>
             ))}
           </ul>
@@ -268,13 +284,19 @@ function App() {
             />
             <button onClick={handleDeleteUsers}>Restart Game</button>
           </div>
+
+          <div>
+            <h1>Story Theme</h1>
+            {StoryTheme}
+          </div>
         </div>
+
       ) : (
         // If user is signed out
         <div>
           <h2>Please sign in with Google:</h2>
           <button onClick={handleSignInWithGoogle}>Sign In with Google</button>
-          <p>btw im also accepting gf applications on a rolling basis. expiring soon!! </p>
+          {/* <p>btw im also accepting gf applications on a rolling basis. expiring soon!! </p> */}
         </div>
       )}
     </div>
