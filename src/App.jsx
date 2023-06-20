@@ -187,24 +187,35 @@ function App() {
       }
     }
   };
-
   // Function to handle contribution change
   const handleContributionChange = () => {
     if (contributionInput.trim() !== '') {
       const user = auth.currentUser;
       if (user) {
         const userRef = ref(database, `users/${user.uid}`);
+        let contribution = parseInt(contributionInput, 10);
+
+        // Check if contribution is greater than user's income
+        const userIncome = leaderboard.find((player) => player.id === user.uid).money;
+        if (contribution > userIncome) {
+          contribution = userIncome;
+        }
+
+        // Check if contribution is less than 0
+        if (contribution < 0) {
+          contribution = 0;
+        }
+
         set(userRef, {
           ...leaderboard.find((player) => player.id === user.uid),
           status: "ready",
-          contributionAmount: contributionInput,
-          // money: leaderboard.find((player) => player.id === user.uid).money - parseInt(contributionInput, 10),
+          contributionAmount: contribution,
         })
           .then(() => {
-            console.log('User money updated in the database');
+            console.log('User contribution updated in the database');
           })
           .catch((error) => {
-            console.log('Error updating user money:', error);
+            console.log('Error updating user contribution:', error);
           });
       }
     }
