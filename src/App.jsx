@@ -7,6 +7,8 @@ import { createName } from './components/functions';
 
 import StoryTheme from './components/StoryTheme';
 
+import './App.css'; // Import the fonts.css file
+
 // Firebase configuration
 const firebaseConfig = {
   // Your Firebase configuration
@@ -25,8 +27,6 @@ const database = getDatabase(firebaseApp);
 const auth = getAuth(firebaseApp);
 const provider = new GoogleAuthProvider();
 
-let userIsReferenced = false;
-
 function App() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
@@ -35,11 +35,12 @@ function App() {
   const [contributionInput, setContributionInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
 
+  const [profilePictureUrl, setProfilePictureUrl] = useState('');
+
   useEffect(() => {
 
     // Function to handle authentication state changes
     const handleAuthStateChanged = (user) => {
-
       console.log('Auth state changed:', user);
 
       if (user) {
@@ -55,6 +56,7 @@ function App() {
           lastContributionAmount: 0,
           livesLeft: 2,
           isAlive: "alive",
+          profilePictureUrl: user.photoURL || '',
         })
           .then(() => {
             console.log('User reference added to the database');
@@ -62,6 +64,9 @@ function App() {
           .catch((error) => {
             console.log('Error adding user reference:', error);
           });
+
+        setProfilePictureUrl(user.photoURL || '');
+
       } else {
         // If user is signed out
         setIsSignedIn(false);
@@ -108,15 +113,8 @@ function App() {
     const leaderboardRef = ref(database, 'users');
     const unsubscribeLeaderboard = onValue(leaderboardRef, handleLeaderboardData);
 
-    // // Log the user every 5 seconds
-    // const interval = setInterval(() => {
-    //   const user = auth.currentUser;
-    //   console.log('Current user:', user);
-    // }, 10000);
-
     // Clean up functions
     return () => {
-      // clearInterval(interval);
       unsubscribeAuth();
       unsubscribeLeaderboard();
       handleDisconnect();
@@ -219,6 +217,8 @@ function App() {
           });
       }
     }
+
+    handleStartClick();
   };
 
   // Function to handle sign in with Google
@@ -257,14 +257,23 @@ function App() {
       {isSignedIn ? (
         // If user is signed in
         <div>
-          <h2>Leaderboard</h2>
-          <ul>
+          <div class="leaderboard">
             {leaderboard.map((player) => (
-              <p key={player.id}>
-                {player.name} | Lives: {player.livesLeft} | Previous Contribution: ${player.lastContributionAmount} | ${player.money} | {player.status}
-              </p>
+              <div class="player" key={player.id}>
+                {profilePictureUrl && <img class="profile-picture" src={profilePictureUrl} alt="Profile" />}
+                <div class="player-details">
+                  <div class="name">{player.name}</div>
+                  <div class="lives-left">Lives: {player.livesLeft}</div>
+                  <div class="status">{player.status}</div>
+                </div>
+                <div class="player-stats">
+                  <div class="money">Bank: ${player.money}</div>
+                  <div class="contribution">Contribution: ${player.lastContributionAmount}</div>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
+
           <div>
             <input
               type="text"
@@ -284,7 +293,6 @@ function App() {
             />
             <button onClick={handleContributionChange}>Submit Contributions</button>
           </div>
-          <button onClick={handleStartClick}>Start</button>
 
           <div>
             <input
