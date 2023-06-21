@@ -87,6 +87,7 @@ function App() {
           lastContributionAmount: userData.lastContributionAmount,
           livesLeft: userData.livesLeft,
           isAlive: userData.isAlive,
+          profilePictureUrl: userData.profilePictureUrl,
         }));
         setLeaderboard(leaderboardData);
       }
@@ -257,18 +258,18 @@ function App() {
       {isSignedIn ? (
         // If user is signed in
         <div>
-          <div class="leaderboard">
+          <div className="leaderboard">
             {leaderboard.map((player) => (
-              <div class="player" key={player.id}>
-                {profilePictureUrl && <img class="profile-picture" src={profilePictureUrl} alt="Profile" />}
-                <div class="player-details">
-                  <div class="name">{player.name}</div>
-                  <div class="lives-left">Lives: {player.livesLeft}</div>
-                  <div class="status">{player.status}</div>
+              <div className="player" key={player.id}>
+                {player.profilePictureUrl && <img className="profile-picture" src={player.profilePictureUrl} alt="Profile" />}
+                <div className="player-details">
+                  <div className="name">{player.name}</div>
+                  <div className="lives-left">Lives: {player.livesLeft}</div>
+                  <div className="status">{player.status}</div>
                 </div>
-                <div class="player-stats">
-                  <div class="money">Bank: ${player.money}</div>
-                  <div class="contribution">Contribution: ${player.lastContributionAmount}</div>
+                <div className="player-stats">
+                  <div className="money">Bank: ${player.money}</div>
+                  <div className="contribution">Contribution: ${player.lastContributionAmount}</div>
                 </div>
               </div>
             ))}
