@@ -1,7 +1,6 @@
 @font-face {
     font-family: 'Bloomberg-8MKKZ';
     src: url('./Bloomberg-8MKKZ.otf') format('opentype');
-
 }
 
 body {
@@ -9,6 +8,7 @@ body {
     font-size: 20px;
     /* background-color: darkslateblue;
     color: white; */
+    background-color: darkslateblue;
 }
 
 .game-container {
@@ -19,10 +19,10 @@ body {
 .user-controls {
   display: flex;
   flex-direction: column;
-  background-color: lightskyblue;
-  margin: 0 auto; /* Center horizontally within its container */
+  background-color: rgb(166, 220, 253);
+  /* Center horizontally within its container */
+  margin: 0 auto; 
   width: 50vw;
-  align-items: center;
   justify-content: center; /* Center vertically */
 }
 
@@ -36,4 +36,60 @@ body {
 .image-container img {
   width: 100%;
   height: auto;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"],
+button {
+  font-family: inherit;
+  font-size: 18px;
+  height: 44px;
+  border-radius: 4px;
+  outline: 0;
+  margin: 10px
+}
+
+input[type="password"],
+input[type="number"],
+input[type="text"] {
+  outline: 0;
+  padding-left: 0.5em;
+  border: 2px solid #222034;
+  width: 250px;
+  text-transform: uppercase;
+}
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus {
+  border-color: #f000ff;
+}
+
+button {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  background: #59ff5a;
+  border: 0;
+  border-bottom: 2px solid #1e830b;
+  cursor: pointer;
+}
+button:active {
+  position: relative;
+  top: 1px;
+}
+
+h1 {
+  color: azure;
+}
+
+img {
+  border-radius: 10px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: rgb(211, 232, 232);
+}
+
+#game-status {
+  margin-left: 10px;
+  font-weight: bold;
 }

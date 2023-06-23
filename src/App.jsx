@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, set, onValue, onDisconnect, remove, update } from 'firebase/database';
+import { getDatabase, ref, set, onValue, onDisconnect, remove, update, get } from 'firebase/database';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebase/auth';
 
 import Profile from './components/Profile';
@@ -34,12 +34,14 @@ const provider = new GoogleAuthProvider();
 
 function App() {
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [leaderboard, setLeaderboard] = useState([]);
+  const [joinClicked, setJoinClicked] = useState(false); // State to track if the join button is clicked
+  const [isGameLocked, setIsGameLocked] = useState(false); // State to track if the game is locked
+  const [passwordInput, setPasswordInput] = useState('');
 
   const [nameInput, setNameInput] = useState(createName());
   const [contributionInput, setContributionInput] = useState('');
-  const [passwordInput, setPasswordInput] = useState('');
 
+  const [leaderboard, setLeaderboard] = useState([]);
   const [profilePictureUrl, setProfilePictureUrl] = useState('');
 
   const [currentPlayer, setCurrentPlayer] = useState(null);
@@ -51,37 +53,37 @@ function App() {
       console.log('Auth state changed:', user);
 
       if (user) {
-        // If user is signed in
         setIsSignedIn(true);
         const userRef = ref(database, `users/${user.uid}`);
 
-        set(userRef, {
-          name: nameInput,
-          money: 10000,
-          status: "✘",
-          contributionAmount: 0,
-          lastContributionAmount: 0,
-          livesLeft: 3,
-          isAlive: "alive",
-          profilePictureUrl: user.photoURL || '',
-        })
-          .then(() => {
-            console.log('User reference added to the database');
+        if (joinClicked && !isGameLocked) {
+          // Add the user to the database only if the join button is clicked and the game is not locked
+          set(userRef, {
+            name: nameInput,
+            money: 10000,
+            status: "✘",
+            contributionAmount: 0,
+            lastContributionAmount: 0,
+            livesLeft: 3,
+            isAlive: "alive",
+            profilePictureUrl: user.photoURL || '',
           })
-          .catch((error) => {
-            console.log('Error adding user reference:', error);
-          });
+            .then(() => {
+              console.log('User reference added to the database');
+            })
+            .catch((error) => {
+              console.log('Error adding user reference:', error);
+            });
+        }
 
         setProfilePictureUrl(user.photoURL || '');
-
         setCurrentPlayer(user);
-
       } else {
-        // If user is signed out
         setIsSignedIn(false);
         console.log("User is not signed in.");
       }
     };
+
 
     // Function to handle leaderboard data
     const handleLeaderboardData = (snapshot) => {
@@ -117,6 +119,17 @@ function App() {
       }
     };
 
+     // Function to handle game lock status
+     const handleGameLockStatus = (snapshot) => {
+      const isLocked = snapshot.val() === true;
+      setIsGameLocked(isLocked);
+    };
+
+    // Subscribe to game lock status changes
+    const gameLockRef = ref(database, 'game/lock');
+    const unsubscribeGameLock = onValue(gameLockRef, handleGameLockStatus);
+
+
     // Subscribe to authentication state changes
     const unsubscribeAuth = onAuthStateChanged(auth, handleAuthStateChanged);
     // Subscribe to leaderboard data changes
@@ -125,11 +138,12 @@ function App() {
 
     // Clean up functions
     return () => {
+      unsubscribeGameLock();
       unsubscribeAuth();
       unsubscribeLeaderboard();
       handleDisconnect();
     };
-  }, [auth, database]);
+  }, [auth, database, joinClicked, isGameLocked]);
 
   const handleStartClick = () => {
     const readyPlayers = leaderboard.filter((player) => player.status === '✔');
@@ -174,6 +188,31 @@ function App() {
         });
     } else {
       console.log('Not all players are ready.');
+    }
+  };
+
+  const handleLockClick = () => {
+    const password = 'iloveher'; // Set your desired password here
+
+    if (passwordInput === password) {
+      const lockRef = ref(database, 'game/lock');
+      get(lockRef)
+        .then((snapshot) => {
+          const currentLockStatus = snapshot.val();
+          const newLockStatus = !currentLockStatus;
+          set(lockRef, newLockStatus)
+            .then(() => {
+              console.log(`The game is ${newLockStatus ? 'locked' : 'unlocked'}.`);
+            })
+            .catch((error) => {
+              console.log('Error updating the game lock status:', error);
+            });
+        })
+        .catch((error) => {
+          console.log('Error fetching the game lock status:', error);
+        });
+    } else {
+      console.log('Incorrect password.');
     }
   };
 
@@ -242,6 +281,23 @@ function App() {
       });
   };
 
+  const handleJoinClick = () => {
+    const lockRef = ref(database, 'game/lock');
+    get(lockRef)
+      .then((snapshot) => {
+        const isLocked = snapshot.val() === true;
+        if (isLocked) {
+          console.log('The game is locked. Players cannot join at the moment.');
+        } else {
+          setJoinClicked(true);
+        }
+      })
+      .catch((error) => {
+        console.log('Error fetching game lock status:', error);
+      });
+  };
+
+
   // Function to handle deleting all users
   const handleDeleteUsers = () => {
     const password = 'iloveher'; // Set the correct password here
@@ -273,15 +329,21 @@ function App() {
           <div><h1>Payday Purgatory</h1></div>
 
           <div className="game-container">
+
             <div className="user-controls">
+              <p id="game-status">{isGameLocked ? 'Game is in session' : 'Game is open'}</p>
+
               <div>
                 <input
                   type="text"
                   value={nameInput}
                   onChange={(e) => setNameInput(e.target.value)}
-                  placeholder="Enter your name"
+                  placeholder="Enter name"
                 />
                 <button onClick={handleNameChange}>Change Name</button>
+                <button onClick={handleJoinClick} disabled={isGameLocked}>
+                  {isGameLocked ? 'Game Locked' : 'Join Game'}
+                </button>
               </div>
               <div>
                 <input
@@ -289,7 +351,7 @@ function App() {
                   min="0"
                   value={contributionInput}
                   onChange={(e) => setContributionInput(e.target.value)}
-                  placeholder="Enter your contributions"
+                  placeholder="Enter Contributions"
                 />
                 <button onClick={handleContributionChange}>Submit Money</button>
               </div>
@@ -299,10 +361,13 @@ function App() {
                   type="password"
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
-                  placeholder="Enter the password"
+                  placeholder="Enter password"
                 />
-                <button onClick={handleDeleteUsers}>Reallyy secret</button>
+                <button onClick={handleDeleteUsers}>Resetter</button>
+                <button onClick={handleLockClick}>Locker</button>
+
               </div>
+
             </div>
 
             <div className="leaderboard">

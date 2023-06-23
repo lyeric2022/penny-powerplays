@@ -13,7 +13,11 @@ const ImageContainer = () => {
   return (
     <div className="image-container">
       {images.map((image, index) => (
-        <img src={image} alt={`Image ${index + 1}`} key={index} />
+        <img 
+        src={image} 
+        alt={`Image ${index + 1}`} 
+        key={index}
+        />
       ))}
     </div>
   );

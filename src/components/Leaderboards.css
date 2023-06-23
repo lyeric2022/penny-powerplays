@@ -2,7 +2,7 @@
 .leaderboard {
     display: flex;
     flex-direction: column;
-    background-color: lightpink;
+    background-color: rgb(255, 202, 211);
     margin: 0 auto; 
     width: 50vw;
     /* padding: 10px; */
@@ -10,6 +10,7 @@
 
   #leaderboards-text {
     margin: 0 auto; 
+    margin-top: 10px;
   }
 
   
@@ -25,7 +26,7 @@
     border-radius: 10px;
     margin: 10px;
     margin-right: 0px;
-
+    border-color: darkslateblue;
   }
   
   .player-details {
