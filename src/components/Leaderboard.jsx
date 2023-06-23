@@ -8,13 +8,21 @@ function Player({ player }) {
     return heartIcon.repeat(numHearts);
   };
 
+  // Helper function to truncate the player name if it exceeds 15 characters
+  const truncateName = (name, maxLength) => {
+    if (name.length <= maxLength) {
+      return name;
+    }
+    return name.substring(0, maxLength) + "...";
+  };
+
   return (
 
     <div className="player" key={player.id}>
 
       {player.profilePictureUrl && <img className="profile-picture" src={player.profilePictureUrl} alt="Profile" />}
       <div className="player-details">
-        <div className="name">{player.name}</div>
+      <div className="name">{truncateName(player.name, 15)}</div>
         <div className="lives-left">{generateHearts(player.livesLeft)}</div>
         <div className="status">Status: {player.status}</div>
       </div>

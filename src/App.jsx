@@ -10,6 +10,8 @@ import { createName } from './components/functions';
 
 import StoryTheme from './components/StoryTheme';
 
+import ImageContainer from './components/ImageContainer';
+
 import './App.css'; // Import the fonts.css file
 
 // Firebase configuration
@@ -307,6 +309,7 @@ function App() {
               <Leaderboard leaderboard={leaderboard} />
             </div>
           </div>
+          <ImageContainer />
 
           {/* <div>
             <h1>Story Theme</h1>

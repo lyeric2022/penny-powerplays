@@ -25,3 +25,15 @@ body {
   align-items: center;
   justify-content: center; /* Center vertically */
 }
+
+.image-container {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-gap: 10px;
+  margin-top: 20px;
+}
+
+.image-container img {
+  width: 100%;
+  height: auto;
+}
