@@ -46,6 +46,8 @@ function App() {
 
   const [currentPlayer, setCurrentPlayer] = useState(null);
 
+  const [canChangeName, setCanChangeName] = useState(false);
+
   useEffect(() => {
 
     // Function to handle authentication state changes
@@ -119,8 +121,8 @@ function App() {
       }
     };
 
-     // Function to handle game lock status
-     const handleGameLockStatus = (snapshot) => {
+    // Function to handle game lock status
+    const handleGameLockStatus = (snapshot) => {
       const isLocked = snapshot.val() === true;
       setIsGameLocked(isLocked);
     };
@@ -220,7 +222,7 @@ function App() {
 
   // Function to handle name change
   const handleNameChange = () => {
-    if (nameInput.trim() !== '') {
+    if (canChangeName && nameInput.trim() !== '') {
       const user = auth.currentUser;
       if (user) {
         const userRef = ref(database, `users/${user.uid}`);
@@ -234,6 +236,10 @@ function App() {
       }
     }
   };
+
+
+
+  // Function to handle contribution change
   // Function to handle contribution change
   const handleContributionChange = () => {
     if (contributionInput.trim() !== '') {
@@ -290,12 +296,14 @@ function App() {
           console.log('The game is locked. Players cannot join at the moment.');
         } else {
           setJoinClicked(true);
+          setCanChangeName(true); // Set canChangeName to true after the user joins
         }
       })
       .catch((error) => {
         console.log('Error fetching game lock status:', error);
       });
   };
+
 
 
   // Function to handle deleting all users
@@ -340,7 +348,9 @@ function App() {
                   onChange={(e) => setNameInput(e.target.value)}
                   placeholder="Enter name"
                 />
-                <button onClick={handleNameChange}>Change Name</button>
+                <button onClick={handleNameChange} disabled={!canChangeName}>
+                  Change Name
+                </button>
                 <button onClick={handleJoinClick} disabled={isGameLocked}>
                   {isGameLocked ? 'Game Locked' : 'Join Game'}
                 </button>
@@ -353,7 +363,9 @@ function App() {
                   onChange={(e) => setContributionInput(e.target.value)}
                   placeholder="Enter Contributions"
                 />
-                <button onClick={handleContributionChange}>Submit Money</button>
+                <button onClick={handleContributionChange} disabled={!joinClicked}>
+                  Submit Money
+                </button>
               </div>
 
               <div>
