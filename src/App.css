@@ -23,4 +23,5 @@ body {
   margin: 0 auto; /* Center horizontally within its container */
   width: 50vw;
   align-items: center;
+  justify-content: center; /* Center vertically */
 }

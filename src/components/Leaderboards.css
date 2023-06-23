@@ -3,13 +3,13 @@
     display: flex;
     flex-direction: column;
     background-color: lightpink;
-    margin: 0 auto; /* Center horizontally within its container */
-    width: 48vw;
-    padding: 10px;
+    margin: 0 auto; 
+    width: 50vw;
+    /* padding: 10px; */
   }
 
   #leaderboards-text {
-    margin: 0 auto; /* Center horizontally within its container */
+    margin: 0 auto; 
   }
 
   
@@ -20,15 +20,19 @@
   }
   
   .profile-picture {
-    width: 70px;
-    height: 70px;
+    width:75px;
+    height: 75px;
     border-radius: 10px;
-    margin-right: 10px;
+    margin: 10px;
+    margin-right: 0px;
+
   }
   
   .player-details {
     display: flex;
     flex-direction: column;
+    padding: 10px;
+
   }
   
   .name {
@@ -36,9 +40,11 @@
   }
   
   .player-stats {
+    margin: 10px;
     display: flex;
     flex-direction: column;
     margin-left: auto;
+
   }
   
   .money {

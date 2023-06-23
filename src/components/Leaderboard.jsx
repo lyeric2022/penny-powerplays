@@ -27,6 +27,9 @@ function Player({ player }) {
 }
 
 export default function Leaderboard({ leaderboard }) {
+  // Sort players by livesLeft in descending order
+  const sortedLeaderboard = [...leaderboard].sort((a, b) => b.livesLeft - a.livesLeft);
+
   return (
 
     <div className="leaderboard">
