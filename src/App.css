@@ -11,54 +11,16 @@ body {
     color: white; */
 }
 
-.leaderboard {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .player {
-    display: flex;
-    margin-bottom: 10px;
-  }
-  
-  .profile-picture {
-    width: 70px;
-    height: 70px;
-    border-radius: 10px;
-    margin-right: 10px;
-  }
-  
-  .player-details {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .name {
-    font-weight: bold;
-  }
-  
-  .player-stats {
-    display: flex;
-    flex-direction: column;
-    margin-left: auto;
-  }
-  
-  .money {
-    font-weight: bold;
-  }
-  
-  .contribution {
-    margin-top: 5px;
-  }
-  
-  .player-stats-1 {
-    display: flex;
-    flex-direction: column;
-    margin-left: 25px;
-  }
+.game-container {
+  display: flex;
+  flex-direction: row;
+}
 
-  .player-1 {
-    display: flex;
-    margin-bottom: 10px;
-    border-width: 10px;
-  }
+.user-controls {
+  display: flex;
+  flex-direction: column;
+  background-color: lightskyblue;
+  margin: 0 auto; /* Center horizontally within its container */
+  width: 50vw;
+  align-items: center;
+}

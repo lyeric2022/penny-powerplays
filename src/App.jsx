@@ -40,6 +40,8 @@ function App() {
 
   const [profilePictureUrl, setProfilePictureUrl] = useState('');
 
+  const [currentPlayer, setCurrentPlayer] = useState(null);
+
   useEffect(() => {
 
     // Function to handle authentication state changes
@@ -54,10 +56,10 @@ function App() {
         set(userRef, {
           name: nameInput,
           money: 10000,
-          status: "unready",
+          status: "✘",
           contributionAmount: 0,
           lastContributionAmount: 0,
-          livesLeft: 2,
+          livesLeft: 3,
           isAlive: "alive",
           profilePictureUrl: user.photoURL || '',
         })
@@ -69,6 +71,8 @@ function App() {
           });
 
         setProfilePictureUrl(user.photoURL || '');
+
+        setCurrentPlayer(user);
 
       } else {
         // If user is signed out
@@ -126,7 +130,7 @@ function App() {
   }, [auth, database]);
 
   const handleStartClick = () => {
-    const readyPlayers = leaderboard.filter((player) => player.status === 'ready');
+    const readyPlayers = leaderboard.filter((player) => player.status === '✔');
 
     if (readyPlayers.length === leaderboard.length) {
       const sortedPlayers = [...leaderboard].sort((a, b) => a.contributionAmount - b.contributionAmount);
@@ -139,7 +143,7 @@ function App() {
         const updatedData = {
           ...player,
           money: player.money - player.contributionAmount,
-          status: 'unready',
+          status: '✘',
           lastContributionAmount: player.contributionAmount,
           livesLeft: player === lowestContributor ? player.livesLeft - 1 : player.livesLeft,
         };
@@ -210,7 +214,7 @@ function App() {
 
         set(userRef, {
           ...leaderboard.find((player) => player.id === user.uid),
-          status: "ready",
+          status: "✔",
           contributionAmount: contribution,
         })
           .then(() => {
@@ -259,41 +263,49 @@ function App() {
   return (
     <div>
       {isSignedIn ? (
-        // If user is signed in
+        // If user is signed in            
         <div>
+          {/* <div>
+          <Profile player={} />
+          </div> */}
+          <div><h1>Payday Purgatory</h1></div>
 
-          <div className="leaderboard">
-            <Leaderboard leaderboard={leaderboard} />
-          </div>
+          <div className="game-container">
+            <div className="user-controls">
+              <div>
+                <input
+                  type="text"
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  placeholder="Enter your name"
+                />
+                <button onClick={handleNameChange}>Change Name</button>
+              </div>
+              <div>
+                <input
+                  type="number"
+                  min="0"
+                  value={contributionInput}
+                  onChange={(e) => setContributionInput(e.target.value)}
+                  placeholder="Enter your contributions"
+                />
+                <button onClick={handleContributionChange}>Submit Money</button>
+              </div>
 
-          <div>
-            <input
-              type="text"
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
-              placeholder="Enter your name"
-            />
-            <button onClick={handleNameChange}>Change Name</button>
-          </div>
-          <div>
-            <input
-              type="number"
-              min="0"
-              value={contributionInput}
-              onChange={(e) => setContributionInput(e.target.value)}
-              placeholder="Enter your contributions"
-            />
-            <button onClick={handleContributionChange}>Submit Contributions</button>
-          </div>
+              <div>
+                <input
+                  type="password"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="Enter the password"
+                />
+                <button onClick={handleDeleteUsers}>Reallyy secret</button>
+              </div>
+            </div>
 
-          <div>
-            <input
-              type="password"
-              value={passwordInput}
-              onChange={(e) => setPasswordInput(e.target.value)}
-              placeholder="Enter the password"
-            />
-            <button onClick={handleDeleteUsers}>Restart Game</button>
+            <div className="leaderboard">
+              <Leaderboard leaderboard={leaderboard} />
+            </div>
           </div>
 
           {/* <div>

@@ -1,0 +1,51 @@
+
+.leaderboard {
+    display: flex;
+    flex-direction: column;
+    background-color: lightpink;
+    margin: 0 auto; /* Center horizontally within its container */
+    width: 48vw;
+    padding: 10px;
+  }
+
+  #leaderboards-text {
+    margin: 0 auto; /* Center horizontally within its container */
+  }
+
+  
+  .player {
+    display: flex;
+    margin-bottom: 10px;
+    /* background-color: lightcoral; */
+  }
+  
+  .profile-picture {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    margin-right: 10px;
+  }
+  
+  .player-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .name {
+    font-weight: bold;
+  }
+  
+  .player-stats {
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+  }
+  
+  .money {
+    font-weight: bold;
+    margin-left: auto;
+  }
+  
+  .contribution {
+    margin-top: 5px;
+  }
