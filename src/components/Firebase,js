@@ -1,0 +1,23 @@
+// import { initializeApp } from 'firebase/app';
+// import { getDatabase, ref, set, onValue, onDisconnect, remove, update } from 'firebase/database';
+// import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebase/auth';
+
+// // Firebase configuration
+// const firebaseConfig = {
+//   // Your Firebase configuration
+//   apiKey: "AIzaSyBgjtQU9Kdw1v1ZgY0iHL9WfV8ao8RCMfg",
+//   authDomain: "penny-powerplays.firebaseapp.com",
+//   projectId: "penny-powerplays",
+//   storageBucket: "penny-powerplays.appspot.com",
+//   messagingSenderId: "91939738441",
+//   appId: "1:91939738441:web:8a1216a1430a1457690098",
+//   measurementId: "G-ZWS3GQ0JCE"
+// };
+
+// // Initialize Firebase
+// const firebaseApp = initializeApp(firebaseConfig);
+// const database = getDatabase(firebaseApp);
+// const auth = getAuth(firebaseApp);
+// const provider = new GoogleAuthProvider();
+
+// export { database, auth, provider };

@@ -3,6 +3,9 @@ import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, onValue, onDisconnect, remove, update } from 'firebase/database';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebase/auth';
 
+import Profile from './components/Profile';
+import Leaderboard from './components/Leaderboard';
+
 import { createName } from './components/functions';
 
 import StoryTheme from './components/StoryTheme';
@@ -258,21 +261,9 @@ function App() {
       {isSignedIn ? (
         // If user is signed in
         <div>
+
           <div className="leaderboard">
-            {leaderboard.map((player) => (
-              <div className="player" key={player.id}>
-                {player.profilePictureUrl && <img className="profile-picture" src={player.profilePictureUrl} alt="Profile" />}
-                <div className="player-details">
-                  <div className="name">{player.name}</div>
-                  <div className="lives-left">Lives: {player.livesLeft}</div>
-                  <div className="status">{player.status}</div>
-                </div>
-                <div className="player-stats">
-                  <div className="money">Bank: ${player.money}</div>
-                  <div className="contribution">Contribution: ${player.lastContributionAmount}</div>
-                </div>
-              </div>
-            ))}
+            <Leaderboard leaderboard={leaderboard} />
           </div>
 
           <div>
@@ -305,10 +296,10 @@ function App() {
             <button onClick={handleDeleteUsers}>Restart Game</button>
           </div>
 
-          <div>
+          {/* <div>
             <h1>Story Theme</h1>
             {StoryTheme}
-          </div>
+          </div> */}
         </div>
 
       ) : (
