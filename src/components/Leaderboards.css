@@ -6,11 +6,15 @@
     margin: 0 auto; 
     width: 50vw;
     /* padding: 10px; */
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
   }
 
   #leaderboards-text {
     margin: 0 auto; 
     margin-top: 10px;
+    margin-bottom: 10px;
+
   }
 
   

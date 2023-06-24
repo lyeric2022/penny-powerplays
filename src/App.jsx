@@ -3,12 +3,11 @@ import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, onValue, onDisconnect, remove, update, get } from 'firebase/database';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'firebase/auth';
 
-import Profile from './components/Profile';
 import Leaderboard from './components/Leaderboard';
 
-import { createName } from './components/functions';
+import HowToPlay from './components/HowToPlay';
 
-import StoryTheme from './components/StoryTheme';
+import { createName } from './components/functions';
 
 import ImageContainer from './components/ImageContainer';
 
@@ -48,6 +47,9 @@ function App() {
 
   const [canChangeName, setCanChangeName] = useState(false);
 
+  const [isFullWidth, setIsFullWidth] = useState(false);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
+
   useEffect(() => {
 
     // Function to handle authentication state changes
@@ -61,7 +63,7 @@ function App() {
         if (joinClicked && !isGameLocked) {
           // Add the user to the database only if the join button is clicked and the game is not locked
           set(userRef, {
-            name: nameInput,
+            name: user.displayName || '',
             money: 10000,
             status: "✘",
             contributionAmount: 0,
@@ -80,12 +82,12 @@ function App() {
 
         setProfilePictureUrl(user.photoURL || '');
         setCurrentPlayer(user);
+        setNameInput(user.displayName || '');
       } else {
         setIsSignedIn(false);
         console.log("User is not signed in.");
       }
     };
-
 
     // Function to handle leaderboard data
     const handleLeaderboardData = (snapshot) => {
@@ -102,6 +104,9 @@ function App() {
           isAlive: userData.isAlive,
           profilePictureUrl: userData.profilePictureUrl,
         }));
+        // Sort leaderboardData array in descending order based on 'money' property
+        leaderboardData.sort((a, b) => b.money - a.money);
+
         setLeaderboard(leaderboardData);
       }
     };
@@ -149,6 +154,8 @@ function App() {
 
   const handleStartClick = () => {
     const readyPlayers = leaderboard.filter((player) => player.status === '✔');
+    console.log(readyPlayers.length);
+    console.log(leaderboard.length);
 
     if (readyPlayers.length === leaderboard.length) {
       const sortedPlayers = [...leaderboard].sort((a, b) => a.contributionAmount - b.contributionAmount);
@@ -218,8 +225,6 @@ function App() {
     }
   };
 
-
-
   // Function to handle name change
   const handleNameChange = () => {
     if (canChangeName && nameInput.trim() !== '') {
@@ -239,7 +244,6 @@ function App() {
 
 
 
-  // Function to handle contribution change
   // Function to handle contribution change
   const handleContributionChange = () => {
     if (contributionInput.trim() !== '') {
@@ -272,8 +276,8 @@ function App() {
           });
       }
     }
-
     handleStartClick();
+
   };
 
   // Function to handle sign in with Google
@@ -304,8 +308,6 @@ function App() {
       });
   };
 
-
-
   // Function to handle deleting all users
   const handleDeleteUsers = () => {
     const password = 'iloveher'; // Set the correct password here
@@ -331,14 +333,21 @@ function App() {
       {isSignedIn ? (
         // If user is signed in            
         <div>
-          {/* <div>
-          <Profile player={} />
-          </div> */}
-          <div><h1>Payday Purgatory</h1></div>
+          <div>
+            <h1>Payday Purgatory</h1>
+          </div>
+          <div>
+            <button onClick={() => setIsFullWidth(!isFullWidth)} style={{ fontWeight: 'bold', marginTop: '-40px', marginLeft: '0px' }}>
+              {isFullWidth ? 'Game View: Column' : 'Game View: Row'}
+            </button>
+            <button onClick={() => setShowHowToPlay(!showHowToPlay)} style={{ fontWeight: 'bold', marginTop: '-40px', marginLeft: '0px' }}>
+            {showHowToPlay ? 'Hide How to Play' : 'Show How to Play'}
+          </button>
+          </div>
+          {showHowToPlay && <HowToPlay />}
 
-          <div className="game-container">
-
-            <div className="user-controls">
+          <div className={`game-container ${isFullWidth ? 'full-width' : ''}`}>
+            <div className={`user-controls ${isFullWidth ? 'full-width' : ''}`}>
               <h2 id="game-status">{isGameLocked ? 'Game is in session' : 'Game is open'}</h2>
 
               <div>
@@ -382,16 +391,11 @@ function App() {
 
             </div>
 
-            <div className="leaderboard">
+            <div className={`leaderboard ${isFullWidth ? 'full-width' : ''}`}>
               <Leaderboard leaderboard={leaderboard} />
             </div>
           </div>
           <ImageContainer />
-
-          {/* <div>
-            <h1>Story Theme</h1>
-            {StoryTheme}
-          </div> */}
         </div>
 
       ) : (
@@ -399,7 +403,6 @@ function App() {
         <div>
           <h2>Please sign in with Google:</h2>
           <button onClick={handleSignInWithGoogle}>Sign In with Google</button>
-          {/* <p>btw im also accepting gf applications on a rolling basis. expiring soon!! </p> */}
         </div>
       )}
     </div>
