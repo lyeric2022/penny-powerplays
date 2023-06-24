@@ -339,7 +339,7 @@ function App() {
           <div className="game-container">
 
             <div className="user-controls">
-              <p id="game-status">{isGameLocked ? 'Game is in session' : 'Game is open'}</p>
+              <h2 id="game-status">{isGameLocked ? 'Game is in session' : 'Game is open'}</h2>
 
               <div>
                 <input

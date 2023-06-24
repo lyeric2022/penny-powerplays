@@ -1,14 +1,14 @@
 @font-face {
-    font-family: 'Bloomberg-8MKKZ';
-    src: url('./Bloomberg-8MKKZ.otf') format('opentype');
+  font-family: 'Bloomberg-8MKKZ';
+  src: url('./Bloomberg-8MKKZ.otf') format('opentype');
 }
 
 body {
-    font-family: 'Bloomberg', sans-serif;
-    font-size: 20px;
-    /* background-color: darkslateblue;
+  font-family: 'Bloomberg', sans-serif;
+  font-size: 20px;
+  /* background-color: darkslateblue;
     color: white; */
-    background-color: darkslateblue;
+  background-color: darkslateblue;
 }
 
 .game-container {
@@ -21,9 +21,10 @@ body {
   flex-direction: column;
   background-color: rgb(166, 220, 253);
   /* Center horizontally within its container */
-  margin: 0 auto; 
+  margin: 0 auto;
   width: 50vw;
-  justify-content: center; /* Center vertically */
+  justify-content: center;
+  /* Center vertically */
 }
 
 .image-container {
@@ -59,6 +60,7 @@ input[type="text"] {
   width: 250px;
   text-transform: uppercase;
 }
+
 input[type="text"]:focus,
 input[type="number"]:focus,
 input[type="password"]:focus {
@@ -73,6 +75,7 @@ button {
   border-bottom: 2px solid #1e830b;
   cursor: pointer;
 }
+
 button:active {
   position: relative;
   top: 1px;
@@ -92,4 +95,6 @@ img {
 #game-status {
   margin-left: 10px;
   font-weight: bold;
+  margin: 0 auto;
+  margin-top: 10px;
 }
