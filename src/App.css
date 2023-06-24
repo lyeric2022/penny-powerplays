@@ -35,6 +35,7 @@ body {
   grid-template-columns: repeat(6, 1fr);
   grid-gap: 10px;
   margin-top: 20px;
+  min-height: 100px;
 }
 
 .image-container img {
@@ -121,4 +122,30 @@ img {
 .leaderboard.full-width {
   border-top-right-radius: 0px;
   border-bottom-left-radius: 10px;
+}
+
+.fade-in {
+  animation: fadeInAnimation 1s ease-in forwards;
+}
+
+.fade-out {
+  animation: fadeOutAnimation 1s ease-out forwards;
+}
+
+@keyframes fadeInAnimation {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOutAnimation {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }

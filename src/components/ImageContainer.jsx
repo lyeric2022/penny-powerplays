@@ -17,6 +17,7 @@ const ImageContainer = () => {
         src={image} 
         alt={`Image ${index + 1}`} 
         key={index}
+        style={{ marginBottom: '22px', marginTop: '-10px' }} // Add margin-bottom
         />
       ))}
     </div>
