@@ -195,7 +195,18 @@ function App() {
         .catch((error) => {
           console.log('Error deducting contributions and resetting statuses:', error);
         });
-    } else {
+
+      // Update the Firebase reference to "game/round-timer"
+      const gameStatusRef = ref(database, 'game/round-timer');
+      set(gameStatusRef, 30)
+        .then(() => {
+          console.log('Game status set to "started"');
+        })
+        .catch((error) => {
+          console.log('Error setting game status:', error);
+        });
+    }
+    else {
       console.log('Not all players are ready.');
     }
   };
@@ -336,7 +347,7 @@ function App() {
           <div>
             <h1>Payday Purgatory</h1>
           </div>
-          <div className={`game-container ${isFullWidth ? 'full-width' : ''} ${!isGameLocked ? 'fade-in' : 'fade-out'}`}>
+          <div className={`game-container ${isFullWidth ? 'full-width' : ''}`}>
             <div className={`user-controls ${isFullWidth ? 'full-width' : ''}`}>
               <h2 id="game-status">{isGameLocked ? 'Game is in session' : 'Game is open'}</h2>
 
