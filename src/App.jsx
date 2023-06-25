@@ -336,22 +336,6 @@ function App() {
           <div>
             <h1>Payday Purgatory</h1>
           </div>
-          <div>
-            <button onClick={() => setIsFullWidth(!isFullWidth)} style={{ fontWeight: 'bold', marginTop: '-40px', marginLeft: '0px' }}>
-              {isFullWidth ? 'Game View: Column' : 'Game View: Row'}
-            </button>
-            <button
-              onClick={() => setShowHowToPlay(!showHowToPlay)}
-              className={`toggle-button ${showHowToPlay ? 'rotate' : ''}`}
-              style={{ fontWeight: 'bold', marginTop: '-40px', marginLeft: '0px' }}>
-              {showHowToPlay ? 'Hide How to Play' : 'Show How to Play'}
-            </button>
-          </div>
-          <div className={`container ${showHowToPlay ? "slide-in" : "slide-out"}`}>
-            {showHowToPlay ? <HowToPlay /> : <ImageContainer />}
-          </div>
-
-
           <div className={`game-container ${isFullWidth ? 'full-width' : ''} ${!isGameLocked ? 'fade-in' : 'fade-out'}`}>
             <div className={`user-controls ${isFullWidth ? 'full-width' : ''}`}>
               <h2 id="game-status">{isGameLocked ? 'Game is in session' : 'Game is open'}</h2>
@@ -401,7 +385,20 @@ function App() {
               <Leaderboard leaderboard={leaderboard} />
             </div>
           </div>
-          {/* <ImageContainer /> */}
+          <div>
+            <button onClick={() => setIsFullWidth(!isFullWidth)} style={{ fontWeight: 'bold', marginTop: '-40px', marginLeft: '0px' }}>
+              {isFullWidth ? 'Game View: Column' : 'Game View: Row'}
+            </button>
+            <button
+              onClick={() => setShowHowToPlay(!showHowToPlay)}
+              className={`toggle-button ${showHowToPlay ? 'rotate' : ''}`}
+              style={{ fontWeight: 'bold', marginTop: '-40px', marginLeft: '0px' }}>
+              {showHowToPlay ? 'Hide How to Play' : 'Show How to Play'}
+            </button>
+          </div>
+          <div className={`container ${showHowToPlay ? "slide-in" : "slide-out"}`}>
+            {showHowToPlay ? <HowToPlay /> : <ImageContainer />}
+          </div>
         </div>
 
       ) : (
